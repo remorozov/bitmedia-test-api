@@ -2,10 +2,10 @@ const mongoose = require('mongoose')
 
 const transactionSchema = new mongoose.Schema(
   {
-    _id: {
+    hash: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
     },
     from: {
       type: String,
@@ -13,7 +13,8 @@ const transactionSchema = new mongoose.Schema(
     },
     to: {
       type: String,
-      required: true,
+      // Error accured because some transactions do not have 'to' field
+      // required: true,
     },
     block: {
       type: Number,

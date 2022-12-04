@@ -1,9 +1,10 @@
 const axios = require('axios')
 const https = require('https')
+const Transaction = require('./models/Transaction')
 
 const httpClient = axios.create()
 
-const blocksInitialized = 0
+let blocksToInit = 5
 
 const getLastBlockNumber = async () => {
   try {
@@ -38,10 +39,10 @@ const getBlockByNumber = async (number) => {
           res.on('end', () => {
             try {
               const parsedData = JSON.parse(rawData)
-              console.log(!!parsedData.result)
+              // console.log(!!parsedData.result)
               resolve(parsedData.result)
-            } catch (e) {
-              console.error(e.message)
+            } catch (err) {
+              console.error(err.message)
             }
           })
         }
@@ -66,94 +67,50 @@ const sleep = async (sleepTime) =>
 const getLastBlocks = async () => {
   try {
     let lastBlockNumber = await getLastBlockNumber()
-    const blocksNum = 10
-    const blocks = []
+    let blocksNum = 0
 
-    while (blocks.length < blocksNum) {
+    while (blocksNum < blocksToInit) {
       await sleep(1000)
 
       const block = await getBlockByNumber(lastBlockNumber)
-      // console.log(block)
-      console.log(Object.keys(block))
 
-      !!block &&
-        blocks.push({
-          date: block.timestamp,
-          transactions: block.transactions,
-        })
+      !!block && createTransactions(block.transactions, block.timestamp)
+      console.log('Previous block ' + block.number)
       lastBlockNumber--
-
-      // blocksInitialized++
-      console.log(blocks.length)
+      blocksNum++
     }
-
-    return blocks
   } catch (err) {
     console.log('Error in getLastBlocks')
     return []
   }
 }
 
-const createTransactions = (transactions, date) => {
-  
-}
-
-const getTransactions = async () => {
+const createTransactions = async (transactions, date) => {
   try {
-    const blocks = await getLastBlocks()
-    const transactions = []
-    blocks.forEach((block, index) => {
-      if (block) {
-        transactions.push(
-          ...block.transactions.map((tran) => {
-            return {
-              hash: tran.hash,
-              blockNumber: tran.blockNumber,
-              from: tran.from,
-              to: tran.to,
-              gas: tran.gas,
-              time: block.time,
-              value: tran.value,
-              approveNum: index,
-            }
-          })
-        )
+    const newTransactions = transactions.map((tran) => {
+      return {
+        hash: tran.hash,
+        block: parseInt(tran.blockNumber),
+        from: tran.from,
+        to: tran.to,
+        gas: tran.gas,
+        date: new Date(parseInt(date)),
+        value: parseInt(tran.value),
       }
     })
 
-    return transactions
+    await Transaction.insertMany(newTransactions)
+    console.log('Block ' + transactions[0].blockNumber + ' inserted')
   } catch (err) {
     console.log(err.message)
-    return []
   }
 }
 
 const getNewBlock = async () => {
-  // const blockNumber = await getLastBlockNumber()
-  // console.log(blockNumber)
-  // const blockData = await getBlockByNumber(blockNumber)
+  const block = await getBlockByNumber('latest')
+  !!block && createTransactions(block.transactions, block.timestamp)
 
-  const blockData = await getBlockByNumber('latest')
-
-  if (!blockData) {
-    console.log('here')
-    return
-  }
-
-  const transactions = blockData.transactions.map((tran) => {
-    return {
-      hash: tran.hash,
-      blockNumber: tran.blockNumber,
-      from: tran.from,
-      to: tran.to,
-      gas: tran.gas,
-      time: blockData.time,
-      value: tran.value,
-      approveNum: 0,
-    }
-  })
-
-  console.log(blockData.number)
+  console.log('New block: ', block.number)
 }
 
-module.exports = { getTransactions, getNewBlock }
+module.exports = { getLastBlocks, getNewBlock, getLastBlockNumber }
