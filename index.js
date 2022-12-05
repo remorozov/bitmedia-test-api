@@ -29,7 +29,7 @@ const start = async () => {
 
   const countTransactions = await Transaction.countDocuments()
   if (!countTransactions) {
-    getLastBlocks(50)
+    getLastBlocks(1000)
   }
 
   setInterval(() => {
