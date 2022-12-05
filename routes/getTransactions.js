@@ -1,18 +1,23 @@
 const mongoose = require('mongoose')
 const express = require('express')
-const {
-  validateBlock,
-  validatePage,
-  validateHash,
-  validateAddress,
-  validateNoParams,
-} = require('../middlewares/validateParams')
+// const {
+//   validateBlock,
+//   validatePage,
+//   validateHash,
+//   validateAddress,
+//   validateNoParams,
+// } = require('../middlewares/validateParams')
+const { validatePage } = require('../middlewares/validatePage')
+const { validateHash } = require('../middlewares/validateHash')
+const { validateAddress } = require('../middlewares/validateAddress')
+const { validateBlock } = require('../middlewares/validateBlock')
+const { validateNoFilter } = require('../middlewares/validateNoFilter')
 const Transaction = require('../models/Transaction')
 const { getLastBlock } = require('../middlewares/getLastBlock')
 
 const router = new express.Router()
 
-router.get('/transactions', validatePage, validateNoParams, getLastBlock, async (req, res) => {
+router.get('/transactions', validatePage, validateNoFilter, getLastBlock, async (req, res) => {
   try {
     const skip = (req.page - 1) * 15
     const transactions = await Transaction.find().skip(skip).limit(15)

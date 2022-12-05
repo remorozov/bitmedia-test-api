@@ -4,7 +4,8 @@ const axios = require('axios')
 const cors = require('cors')
 const mongoose = require('mongoose')
 
-const { getLastBlocks, getNewBlock } = require('./blocks')
+const { getNewBlock } = require('./helpers/newBlocksHandler')
+const { getLastBlocks } = require('./helpers/oldBlocksHandler')
 const Transaction = require('./models/Transaction')
 const { transactionRouter } = require('./routes/getTransactions')
 
@@ -19,9 +20,7 @@ httpClient.defaults.bodeLength = Infinity
 app.use(transactionRouter)
 
 const start = async () => {
-  const MONGO_URI =
-    process.env.MONGO_URI ||
-    'mongodb+srv://remorozov:taskManager@transactions.zajwepq.mongodb.net/?retryWrites=true&w=majority'
+  const MONGO_URI = process.env.MONGO_URI
   try {
     await mongoose.connect(MONGO_URI)
   } catch (err) {
@@ -29,13 +28,13 @@ const start = async () => {
   }
 
   const countTransactions = await Transaction.countDocuments()
-  // if (!countTransactions) {
-  //   getLastBlocks()
-  // }
+  if (!countTransactions) {
+    getLastBlocks(50)
+  }
 
-  // setInterval(() => {
-  //   getNewBlock()
-  // }, 12000)
+  setInterval(() => {
+    getNewBlock()
+  }, 12000)
 
   const port = process.env.PORT || 4000
   app.listen(port, () => {

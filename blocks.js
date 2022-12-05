@@ -39,7 +39,6 @@ const getBlockByNumber = async (number) => {
           res.on('end', () => {
             try {
               const parsedData = JSON.parse(rawData)
-              // console.log(!!parsedData.result)
               resolve(parsedData.result)
             } catch (err) {
               console.error(err.message)
@@ -93,8 +92,8 @@ const createTransactions = async (transactions, date) => {
         block: parseInt(tran.blockNumber),
         from: tran.from,
         to: tran.to,
-        gas: tran.gas,
-        date: new Date(parseInt(date)),
+        gas: parseInt(tran.gas) * parseInt(tran.gasPrice) * 10 ** -18,
+        date: new Date(parseInt(date) * 1000),
         value: parseInt(tran.value),
       }
     })

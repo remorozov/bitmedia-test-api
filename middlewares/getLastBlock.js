@@ -1,4 +1,4 @@
-const { getLastBlockNumber } = require('../blocks')
+const { getLastBlockNumber } = require('../helpers/blocks')
 
 const getLastBlock = async (req, res, next) => {
   try {
@@ -11,4 +11,4 @@ const getLastBlock = async (req, res, next) => {
   }
 }
 
-module.exports = {getLastBlock}
+module.exports = { getLastBlock }
