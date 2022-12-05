@@ -15,7 +15,7 @@ const createTransactions = async (transactions, date) => {
     })
 
     await Transaction.insertMany(newTransactions)
-    console.log('Block ' + transactions[0].blockNumber + ' inserted')
+    // console.log('Block ' + transactions[0].blockNumber + ' inserted')
   } catch (err) {
     console.log(err.message)
   }

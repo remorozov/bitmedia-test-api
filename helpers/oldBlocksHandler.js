@@ -20,7 +20,7 @@ const getLastBlocks = async (blocksToInit) => {
       const block = await getBlockByNumber(lastBlockNumber)
 
       !!block && createTransactions(block.transactions, block.timestamp)
-      console.log('Previous block ' + block.number)
+      // console.log('Previous block ' + block.number)
       lastBlockNumber--
       blocksNum++
     }
